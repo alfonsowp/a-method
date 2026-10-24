@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2efe8">
+  <title>Espectro</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='4' cy='8' r='2.3' fill='%23d4532b'/><circle cx='12' cy='8' r='2.3' fill='%230f7a45'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f2efe8;
+      --ink: #1f1b16;
+      --muted: #746d63;
+      --card: #fffdfb;
+      --disagree: #d4532b;
+      --agree: #0f7a45;
+      --side: 22px;
+      --chip-w: 200px;
+      --chip-h: 118px;
+      --lane-gap: 12px;
+      --gutter: calc(var(--chip-w) / 2 + 16px);
+      color-scheme: light;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(1000px 420px at -10% -20%, rgba(212, 83, 43, .07), transparent 50%),
+        radial-gradient(900px 420px at 110% -30%, rgba(15, 122, 69, .07), transparent 46%),
+        var(--bg);
+      font-family: Outfit, "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    button { font: inherit; }
+    :focus { outline: none; }
+    :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+    .sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: var(--ink);
+      color: #f6f3ec;
+      cursor: pointer;
+      font-weight: 500;
+      letter-spacing: .01em;
+    }
+    .btn.ghost {
+      background: transparent;
+      color: var(--ink);
+      box-shadow: inset 0 0 0 1px rgba(31, 27, 22, .18);
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn.ghost:hover { background: rgba(31, 27, 22, .04); filter: none; }
+    .btn:not(:disabled):active { transform: scale(.98); }
+    .btn:disabled { opacity: .32; cursor: default; filter: none; }
+
+    #intro {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      padding: 32px 20px;
+      overflow: auto;
+    }
+    .intro-inner { width: min(640px, 100%); }
+    .eyebrow {
+      margin: 0 0 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1 {
+      margin: 0;
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(64px, 10vw, 104px);
+      letter-spacing: -.05em;
+      line-height: .88;
+    }
+    .lede {
+      margin: 18px 0 0;
+      max-width: 38ch;
+      font-size: 18px;
+      line-height: 1.45;
+      color: #4e4943;
+    }
+    .start-form {
+      margin-top: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .email-label {
+      flex: 1 1 100%;
+      margin: 0;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .email {
+      flex: 1 1 260px;
+      min-width: 0;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      background: var(--card);
+      color: var(--ink);
+      font: inherit;
+      box-shadow: inset 0 0 0 1px rgba(31, 27, 22, .16);
+    }
+    .load-note {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    #btn-retry { margin-top: 14px; }
+
+    #workspace {
+      height: 100%;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px var(--side) 10px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .logo {
+      width: 42px;
+      height: 8px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--disagree), #e4d8c8 52%, var(--agree));
+      flex: none;
+    }
+    .brand strong {
+      display: block;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -.03em;
+      line-height: 1;
+    }
+    #meta {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 48vw;
+    }
+    .header-actions { display: flex; gap: 8px; flex: none; }
+    .header-actions .btn { padding: 8px 12px; font-size: 14px; }
+    .progress { height: 2px; background: rgba(31, 27, 22, .06); }
+    #progress-bar {
+      display: block;
+      height: 100%;
+      width: 100%;
+      transform: scaleX(0);
+      transform-origin: left center;
+      background: var(--ink);
+      transition: transform .45s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .board-scroll {
+      flex: 1 1 auto;
+      min-height: 100px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      display: flex;
+      flex-direction: column;
+      padding: 8px var(--side) 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(31, 27, 22, .28) transparent;
+    }
+    .board { position: relative; margin-top: auto; }
+
+    .axis {
+      position: relative;
+      z-index: 5;
+      flex: none;
+      padding: 0 var(--side) 6px;
+    }
+    .place-hint {
+      margin: 0 0 8px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .axis-labels, .ticks {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 var(--gutter);
+    }
+    .axis-labels {
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .axis-labels span:first-child { color: var(--disagree); }
+    .axis-labels span:last-child { color: var(--agree); }
+    .ticks {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .04em;
+    }
+    .rail-wrap { padding: 0 var(--gutter); }
+    .rail {
+      position: relative;
+      height: 2px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--disagree), #d9cfc2 50%, var(--agree));
+    }
+    .rail::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      left: 0;
+      right: 0;
+      top: -16px;
+      height: 34px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, rgba(212, 83, 43, .13), rgba(217, 207, 194, .08) 50%, rgba(15, 122, 69, .13));
+      opacity: .55;
+      transition: opacity .2s;
+    }
+    body.is-dragging .rail::before { opacity: 1; }
+    body.is-dragging .rail { height: 3px; }
+
+    .dot, .cursor { position: absolute; z-index: 1; }
+    .dot {
+      top: 50%;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 2px solid #fffdfb;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 1px rgba(31, 27, 22, .05);
+    }
+    .dot.is-hot { transform: translate(-50%, -50%) scale(1.45); }
+    .cursor {
+      top: 50%;
+      width: 0;
+      height: 0;
+      z-index: 4;
+      overflow: visible;
+    }
+    .bead {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid #fffdfb;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 4px 12px rgba(31, 27, 22, .18);
+    }
+    .pill {
+      position: absolute;
+      left: 0;
+      bottom: 16px;
+      transform: translateX(-50%);
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .chip {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: var(--chip-w);
+      height: var(--chip-h);
+      padding: 10px 12px 12px;
+      border-radius: 12px;
+      background: var(--card);
+      border: 1px solid rgba(31, 27, 22, .06);
+      box-shadow: 0 8px 22px rgba(55, 38, 16, .06);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      transform-origin: center center;
+      transition: transform .42s cubic-bezier(.16, 1, .3, 1), box-shadow .2s;
+    }
+    .chip-score {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .chip-text {
+      margin: 0;
+      padding-right: 34px;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      letter-spacing: -.015em;
+      line-height: 1.28;
+      text-wrap: pretty;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .chip:hover, .chip.is-hot, .chip:focus-visible {
+      height: auto;
+      min-height: var(--chip-h);
+      z-index: 8;
+      box-shadow: 0 16px 36px rgba(55, 38, 16, .13);
+    }
+    .chip:hover .chip-text,
+    .chip.is-hot .chip-text,
+    .chip:focus-visible .chip-text {
+      -webkit-line-clamp: unset;
+      display: block;
+      overflow: visible;
+    }
+    .chip.dragging {
+      z-index: 9;
+      transition: none;
+      cursor: grabbing;
+      box-shadow: 0 18px 40px rgba(55, 38, 16, .16);
+    }
+    .is-hidden { visibility: hidden !important; }
+
+    .dock {
+      position: relative;
+      z-index: 4;
+      flex: none;
+      overflow: visible;
+      padding: 4px var(--side) max(16px, env(safe-area-inset-bottom));
+      background: linear-gradient(to top, var(--bg) 78%, rgba(242, 239, 232, 0));
+    }
+    .dock-inner { width: min(720px, 100%); margin: 0 auto; }
+    .count {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .slot { width: min(680px, 100%); margin: 0 auto; }
+    .card {
+      position: relative;
+      width: 100%;
+      min-height: 132px;
+      padding: 18px 32px 24px;
+      background: var(--card);
+      border-radius: 20px;
+      border: 1px solid rgba(31, 27, 22, .05);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, .75) inset,
+        0 18px 44px rgba(55, 38, 16, .09),
+        0 2px 6px rgba(55, 38, 16, .04);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(20px, 2.4vw, 28px);
+      font-weight: 500;
+      letter-spacing: -.02em;
+      line-height: 1.28;
+    }
+    .card::before {
+      content: "";
+      display: block;
+      width: 36px;
+      height: 4px;
+      margin: 0 auto 14px;
+      border-radius: 99px;
+      background: rgba(31, 27, 22, .14);
+    }
+    .card p { margin: 0; text-wrap: pretty; }
+    .card.dragging {
+      cursor: grabbing;
+      box-shadow: 0 30px 70px rgba(55, 38, 16, .18), 0 8px 18px rgba(55, 38, 16, .06);
+    }
+    .card.enter { animation: rise .5s cubic-bezier(.16, 1, .3, 1) .04s both; }
+    .hint {
+      margin: 12px 0 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .hint-keys { margin-top: 3px; font-size: 12px; }
+    .hint.attn { animation: attn .45s ease; }
+
+    .done-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+    }
+    .done .count { text-align: left; margin: 0; letter-spacing: .12em; }
+    .done .hint { text-align: left; margin: 4px 0 0; }
+    .done-actions { display: flex; gap: 8px; flex: none; }
+    .done { animation: rise .45s cubic-bezier(.16, 1, .3, 1) both; }
+    .results {
+      max-height: min(28vh, 300px);
+      overflow: auto;
+      margin-top: 12px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(31, 27, 22, .07);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 28px 48px 64px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+      text-align: left;
+      padding: 6px 8px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      font-size: 14px;
+    }
+    .row:hover, .row.is-hot { background: rgba(255, 253, 251, .88); }
+    .row-n { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .row-score { font-weight: 600; font-variant-numeric: tabular-nums; font-size: 13px; }
+    .row-track {
+      position: relative;
+      display: block;
+      height: 3px;
+      border-radius: 99px;
+      background: rgba(31, 27, 22, .08);
+    }
+    .row-track > span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: inherit; }
+    .row-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .flyer {
+      position: fixed;
+      z-index: 70;
+      margin: 0;
+      overflow: hidden;
+      pointer-events: none;
+      box-sizing: border-box;
+      background: var(--card);
+      color: var(--ink);
+      border-radius: 20px;
+      border: 1px solid rgba(31, 27, 22, .05);
+      box-shadow: 0 24px 60px rgba(55, 38, 16, .16);
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 500;
+      letter-spacing: -.02em;
+      line-height: 1.28;
+    }
+    .flyer::before {
+      content: "";
+      display: block;
+      width: 36px;
+      height: 4px;
+      margin: 0 auto 14px;
+      border-radius: 99px;
+      background: rgba(31, 27, 22, .14);
+    }
+    .flyer p { margin: 0; }
+
+    #overlay {
+      position: fixed;
+      inset: 14px;
+      z-index: 80;
+      border-radius: 24px;
+      border: 2px dashed rgba(31, 27, 22, .45);
+      background: rgba(242, 239, 232, .78);
+      backdrop-filter: blur(6px);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 24px;
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(28px, 4vw, 46px);
+      letter-spacing: -.03em;
+      pointer-events: none;
+    }
+    #toast {
+      position: fixed;
+      z-index: 90;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: min(520px, calc(100% - 32px));
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #f6f3ec;
+      font-size: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .16);
+    }
+
+    body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
+    body.is-dragging { user-select: none; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(16px) scale(.985); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes attn {
+      0%, 100% { color: var(--muted); }
+      40% { color: var(--ink); }
+    }
+
+    @media (max-width: 720px) {
+      :root { --side: 12px; --chip-w: 132px; --chip-h: 96px; }
+      .chip-text { -webkit-line-clamp: 4; }
+      .header-row { flex-wrap: wrap; }
+      .lede { font-size: 16px; }
+      .drop-title { font-size: 26px; }
+      .card { padding: 16px 16px 18px; }
+      .done-head { flex-direction: column; align-items: stretch; }
+      .axis-labels { letter-spacing: .08em; }
+      .row { grid-template-columns: 24px 42px 36px minmax(0, 1fr); gap: 6px; }
+    }
+    @media (max-height: 740px) {
+      .card { min-height: 0; font-size: 20px; padding: 14px 16px 16px; }
+      .card::before { margin-bottom: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section id="intro">
+    <div class="intro-inner">
+      <p class="eyebrow">Disagree · Agree</p>
+      <h1>Espectro</h1>
+      <p class="lede">Arrastra cada enunciado a lo largo de la línea. Salen de uno en uno: el siguiente aparece cuando sueltas el anterior.</p>
+      <p class="load-note" id="load-note">Cargando enunciados…</p>
+      <form id="start-form" class="start-form" hidden>
+        <label class="email-label" for="email">Tu email</label>
+        <input id="email" class="email" type="email" name="email" autocomplete="email" inputmode="email" spellcheck="false" required placeholder="nombre@empresa.com">
+        <button class="btn" id="btn-start" type="submit">Empezar</button>
+      </form>
+      <button type="button" class="btn ghost" id="btn-retry" hidden>Reintentar</button>
+    </div>
+  </section>
+
+  <div id="workspace" hidden>
+    <header>
+      <div class="header-row">
+        <div class="brand">
+          <span class="logo" aria-hidden="true"></span>
+          <div>
+            <strong>Espectro</strong>
+            <div id="meta"></div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn ghost" id="btn-undo" disabled>Deshacer</button>
+          <button type="button" class="btn ghost" id="btn-reset" disabled>Reiniciar</button>
+        </div>
+      </div>
+      <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+    </header>
+    <div class="board-scroll" id="board-scroll">
+      <div id="board" class="board" role="list" aria-label="Enunciados colocados"></div>
+    </div>
+    <div class="axis" id="axis">
+      <p id="place-hint" class="place-hint">Suelta la tarjeta en esta zona</p>
+      <div class="axis-labels"><span>Disagree</span><span>Agree</span></div>
+      <div class="rail-wrap">
+        <div id="rail" class="rail">
+          <div id="dots" aria-hidden="true"></div>
+          <div id="cursor" class="cursor" hidden>
+            <div id="pill" class="pill">0</div>
+            <div id="bead" class="bead"></div>
+          </div>
+        </div>
+      </div>
+      <div class="ticks" aria-hidden="true">
+        <span>−100</span><span>−50</span><span>0</span><span>+50</span><span>+100</span>
+      </div>
+    </div>
+    <footer id="dock" class="dock"></footer>
+  </div>
+
+  <div id="toast" role="status" hidden></div>
+  <p id="status" class="sr" aria-live="polite"></p>
+
+  <script>
+    const SHEET_ID = "1l-hyNvIWsPIPollb8dWCnVlvbZff3svX2XV6DKxMRwg";
+    const STATEMENTS_GID = "0";
+    const SCRIPT_URL = "";
+    const SESSION_KEY = "espectro-session-v2";
+    const ui = {};
+    const state = {
+      email: "",
+      deck: [],
+      name: "",
+      statements: [],
+      byId: new Map(),
+      queue: [],
+      placed: [],
+      activeId: null,
+      nextSeq: 1,
+      keyScore: null,
+      drag: null,
+      saveStatus: "",
+    };
+    let dockSig = "";
+    let hideChipId = null;
+    let hotId = null;
+    let springToken = 0;
+    let toastTimer = 0;
+    let nudgeId = null;
+    let saveTimer = 0;
+    let saveSeq = 0;
+    let deckRequest = 0;
+
+    const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+    const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const qid = (root, id) => root.querySelector(`[data-id="${CSS.escape(id)}"]`);
+
+    function parseStatements(raw) {
+      return String(raw)
+        .replace(/^\uFEFF/, "")
+        .split(/\r\n|\n|\r/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+    }
+
+    function formatScore(t) {
+      const n = Math.round(clamp(t, 0, 1) * 200 - 100);
+      if (n > 0) return `+${n}`;
+      if (n < 0) return `−${Math.abs(n)}`;
+      return "0";
+    }
+
+    function scoreColor(t) {
+      const mix = (a, b, u) => a.map((v, i) => Math.round(v + (b[i] - v) * u));
+      const disagree = [212, 83, 43];
+      const mid = [122, 112, 100];
+      const agree = [15, 122, 69];
+      const c = t < 0.5 ? mix(disagree, mid, t / 0.5) : mix(mid, agree, (t - 0.5) / 0.5);
+      return `rgb(${c.join(",")})`;
+    }
+
+    function metrics() {
+      const cs = getComputedStyle(document.documentElement);
+      return {
+        chipW: parseFloat(cs.getPropertyValue("--chip-w")),
+        pitch: parseFloat(cs.getPropertyValue("--chip-h")) + parseFloat(cs.getPropertyValue("--lane-gap")),
+      };
+    }
+
+    function ranked() {
+      return [...state.placed].sort((a, b) => a.score - b.score || a.seq - b.seq);
+    }
+
+    function scoreFromClientX(x) {
+      const rect = ui.rail.getBoundingClientRect();
+      if (rect.width <= 0) return 0.5;
+      return clamp((x - rect.left) / rect.width, 0, 1);
+    }
+
+    function overSpectrum(y) {
+      const board = ui.boardScroll.getBoundingClientRect();
+      const axis = ui.axis.getBoundingClientRect();
+      return y >= Math.min(board.top, axis.top) && y <= Math.max(board.bottom, axis.bottom);
+    }
+
+    function toast(message) {
+      ui.toast.textContent = message;
+      ui.toast.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { ui.toast.hidden = true; }, 2800);
+    }
+
+    function announce(message) {
+      ui.status.textContent = "";
+      requestAnimationFrame(() => { ui.status.textContent = message; });
+    }
+
+    function persist() {
+      try {
+        if (!state.email || !state.statements.length) {
+          sessionStorage.removeItem(SESSION_KEY);
+          return;
+        }
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+          email: state.email,
+          statements: state.statements,
+          placed: state.placed,
+          queue: state.queue,
+          activeId: state.activeId,
+          nextSeq: state.nextSeq,
+        }));
+      } catch { /* private mode or quota */ }
+    }
+
+    function readSession() {
+      try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function sameDeck(saved) {
+      if (!Array.isArray(saved) || saved.length !== state.deck.length) return false;
+      return saved.every((item, index) => item && item.text === state.deck[index]);
+    }
+
+    function tryRestore() {
+      try {
+        const data = readSession();
+        if (!data || typeof data.email !== "string" || !data.email) return false;
+        if (!sameDeck(data.statements)) return false;
+        const statements = state.deck.map((text, index) => ({ id: String(index + 1), text }));
+        const byId = new Map(statements.map((item) => [item.id, item]));
+        const placed = [];
+        if (Array.isArray(data.placed)) {
+          for (const item of data.placed) {
+            if (!item || typeof item.id !== "string" || !byId.has(item.id)) continue;
+            if (typeof item.score !== "number" || !Number.isFinite(item.score)) continue;
+            placed.push({
+              id: item.id,
+              text: byId.get(item.id).text,
+              score: clamp(item.score, 0, 1),
+              seq: typeof item.seq === "number" ? item.seq : placed.length + 1,
+            });
+          }
+        }
+        const placedIds = new Set(placed.map((item) => item.id));
+        let activeId = typeof data.activeId === "string" ? data.activeId : null;
+        if (activeId && (!byId.has(activeId) || placedIds.has(activeId))) activeId = null;
+        const queue = [];
+        const pushQueue = (id) => {
+          if (!id || !byId.has(id) || placedIds.has(id) || id === activeId || queue.includes(id)) return;
+          queue.push(id);
+        };
+        if (Array.isArray(data.queue)) data.queue.forEach(pushQueue);
+        for (const item of statements) pushQueue(item.id);
+        if (!activeId) activeId = queue.shift() ?? null;
+        state.email = data.email.trim().toLowerCase();
+        state.name = state.email;
+        state.statements = statements;
+        state.byId = byId;
+        state.placed = placed;
+        state.queue = queue.filter((id) => id !== activeId);
+        state.activeId = activeId;
+        state.nextSeq = placed.reduce((max, item) => Math.max(max, item.seq), 0) + 1;
+        state.keyScore = null;
+        state.drag = null;
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function callJsonp(src, callbackName, timeoutMs) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        let settled = false;
+        const timer = setTimeout(() => finish(() => reject(new Error("timeout"))), timeoutMs);
+        function finish(fn) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          try { delete window[callbackName]; } catch { /* ignore */ }
+          script.remove();
+          fn();
+        }
+        window[callbackName] = (data) => finish(() => resolve(data));
+        script.onerror = () => finish(() => reject(new Error("network")));
+        script.src = src;
+        document.head.appendChild(script);
+      });
+    }
+
+    function statementsFromGviz(data) {
+      const rows = data && data.table && Array.isArray(data.table.rows) ? data.table.rows : null;
+      if (!rows) throw new Error("shape");
+      const lines = [];
+      for (const row of rows) {
+        const cell = row && row.c && row.c[0];
+        const text = cell && cell.v != null ? String(cell.v).trim() : "";
+        if (!text) {
+          if (lines.length) break;
+          continue;
+        }
+        lines.push(text);
+      }
+      return lines;
+    }
+
+    function fetchStatements() {
+      const callback = "espectroLoad_" + Math.random().toString(36).slice(2);
+      const src = "https://docs.google.com/spreadsheets/d/" + SHEET_ID
+        + "/gviz/tq?tqx=" + encodeURIComponent("out:json;responseHandler:" + callback)
+        + "&gid=" + STATEMENTS_GID
+        + "&headers=0";
+      return callJsonp(src, callback, 15000).then(statementsFromGviz);
+    }
+
+    function validEmail(value) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+
+    function isComplete() {
+      return state.statements.length > 0
+        && state.placed.length === state.statements.length
+        && state.activeId == null;
+    }
+
+    function scoresInOrder() {
+      const byId = new Map(state.placed.map((item) => [item.id, item]));
+      return state.statements.map((item) => {
+        const placed = byId.get(item.id);
+        if (!placed) return "";
+        return String(Math.round(clamp(placed.score, 0, 1) * 200 - 100));
+      });
+    }
+
+    function setSaveStatus(text) {
+      state.saveStatus = text;
+      const node = document.getElementById("save-status");
+      if (!node) return;
+      node.textContent = text;
+      node.hidden = !text;
+    }
+
+    function cancelSave() {
+      clearTimeout(saveTimer);
+      saveSeq += 1;
+      state.saveStatus = "";
+    }
+
+    function scheduleSave(immediate) {
+      if (!isComplete() || !state.email) return;
+      clearTimeout(saveTimer);
+      const email = state.email;
+      const scores = scoresInOrder().join(",");
+      setSaveStatus(SCRIPT_URL ? "Guardando…" : "Falta conectar el guardado en la hoja.");
+      if (immediate) {
+        submitScores(email, scores);
+        return;
+      }
+      saveTimer = setTimeout(() => submitScores(email, scores), 450);
+    }
+
+    function submitScores(email, scores) {
+      if (!email) return;
+      if (!SCRIPT_URL) {
+        setSaveStatus("Falta conectar el guardado en la hoja.");
+        return;
+      }
+      const seq = ++saveSeq;
+      const callback = "espectroSave_" + Math.random().toString(36).slice(2);
+      const src = SCRIPT_URL + (SCRIPT_URL.includes("?") ? "&" : "?")
+        + new URLSearchParams({ callback, email, scores }).toString();
+      setSaveStatus("Guardando…");
+      callJsonp(src, callback, 20000).then((data) => {
+        if (seq !== saveSeq) return;
+        if (data && data.ok) setSaveStatus("Guardado en la hoja.");
+        else setSaveStatus("No se ha podido guardar.");
+      }).catch(() => {
+        if (seq !== saveSeq) return;
+        setSaveStatus("No se ha podido guardar.");
+      });
+    }
+
+    function showGate(note, options = {}) {
+      ui.loadNote.textContent = note;
+      ui.loadNote.hidden = !note;
+      ui.startForm.hidden = !options.form;
+      ui.btnRetry.hidden = !options.retry;
+      ui.intro.hidden = false;
+      ui.workspace.hidden = true;
+      dockSig = "";
+      if (options.form) requestAnimationFrame(() => ui.email.focus());
+    }
+
+    function beginSession(raw) {
+      const email = raw.trim().toLowerCase();
+      if (!validEmail(email)) {
+        toast("Escribe un email válido.");
+        ui.email.focus();
+        return;
+      }
+      if (!state.deck.length) return;
+      state.email = email;
+      loadStatements(state.deck.join("\n"), email);
+    }
+
+    function newRespondent() {
+      if (state.drag && !state.drag.keyboard) cancelPointerDrag();
+      state.drag = null;
+      document.body.classList.remove("is-dragging");
+      clearTimeout(saveTimer);
+      if (isComplete() && state.email) submitScores(state.email, scoresInOrder().join(","));
+      else cancelSave();
+      state.email = "";
+      state.name = "";
+      state.statements = [];
+      state.byId = new Map();
+      state.placed = [];
+      state.queue = [];
+      state.activeId = null;
+      state.nextSeq = 1;
+      state.keyScore = null;
+      state.drag = null;
+      try { sessionStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
+      document.querySelectorAll(".flyer").forEach((node) => node.remove());
+      hideCursor();
+      document.body.classList.remove("is-dragging");
+      ui.board.replaceChildren();
+      ui.dots.replaceChildren();
+      ui.dock.replaceChildren();
+      ui.email.value = "";
+      showGate(state.deck.length ? `${state.deck.length} enunciados` : "", { form: state.deck.length > 0 });
+    }
+
+    function loadDeck() {
+      const token = ++deckRequest;
+      ui.startForm.hidden = true;
+      ui.btnRetry.hidden = true;
+      ui.loadNote.hidden = false;
+      ui.loadNote.textContent = "Cargando enunciados…";
+      ui.intro.hidden = false;
+      fetchStatements().then((lines) => {
+        if (token !== deckRequest) return;
+        if (!lines.length) throw new Error("empty");
+        state.deck = lines.length > 400 ? lines.slice(0, 400) : lines;
+        if (lines.length > 400) toast("Se han cargado los primeros 400 enunciados.");
+        if (tryRestore()) {
+          sync({ animateCard: false });
+          if (isComplete()) scheduleSave();
+          return;
+        }
+        const saved = readSession();
+        if (saved && typeof saved.email === "string") ui.email.value = saved.email;
+        showGate(`${state.deck.length} enunciados`, { form: true });
+      }).catch(() => {
+        if (token !== deckRequest) return;
+        state.deck = [];
+        showGate("No se han podido cargar los enunciados.", { retry: true });
+      });
+    }
+
+    function loadStatements(text, name) {
+      let lines = parseStatements(text);
+      if (!lines.length) {
+        toast("No hay enunciados.");
+        return;
+      }
+      if (lines.length > 400) {
+        lines = lines.slice(0, 400);
+        toast("Se han cargado los primeros 400 enunciados.");
+      }
+      const statements = lines.map((line, index) => ({ id: String(index + 1), text: line }));
+      document.querySelectorAll(".flyer").forEach((node) => node.remove());
+      state.name = name || "enunciados.txt";
+      state.statements = statements;
+      state.byId = new Map(statements.map((item) => [item.id, item]));
+      state.placed = [];
+      state.queue = statements.slice(1).map((item) => item.id);
+      state.activeId = statements[0].id;
+      state.nextSeq = 1;
+      state.keyScore = null;
+      state.drag = null;
+      springToken += 1;
+      hideCursor();
+      document.body.classList.remove("is-dragging");
+      ui.board.replaceChildren();
+      ui.dots.replaceChildren();
+      dockSig = "";
+      persist();
+      sync({ animateCard: true });
+      announce(`${statements.length} enunciados cargados.`);
+    }
+
+    function resetPlacements() {
+      if (!state.statements.length || state.drag) return;
+      cancelSave();
+      state.placed = [];
+      state.queue = state.statements.slice(1).map((item) => item.id);
+      state.activeId = state.statements[0]?.id ?? null;
+      state.nextSeq = 1;
+      state.keyScore = null;
+      hideCursor();
+      ui.board.replaceChildren();
+      ui.dots.replaceChildren();
+      dockSig = "";
+      persist();
+      sync({ animateCard: true });
+    }
+
+    function undo() {
+      if (!state.placed.length || state.drag) return;
+      cancelSave();
+      const last = state.placed.reduce((best, item) => (item.seq >= best.seq ? item : best));
+      if (state.activeId != null) state.queue.unshift(state.activeId);
+      state.placed = state.placed.filter((item) => item.id !== last.id);
+      state.queue = state.queue.filter((id) => id !== last.id);
+      state.activeId = last.id;
+      state.keyScore = null;
+      hideCursor();
+      dockSig = "";
+      persist();
+      sync({ animateCard: true });
+      announce("Tarjeta recuperada.");
+    }
+
+    function exportText() {
+      const lines = ranked().map((item) => `${Math.round(item.score * 200 - 100)}\t${item.text.replace(/\s+/g, " ").trim()}`);
+      return `# ${state.name}\n# -100 disagree · +100 agree\n\n${lines.join("\n")}\n`;
+    }
+
+    async function copyResult() {
+      const text = exportText();
+      try {
+        await navigator.clipboard.writeText(text);
+        toast("Orden copiado.");
+      } catch {
+        toast("No se ha podido copiar.");
+      }
+    }
+
+    function downloadResult() {
+      const blob = new Blob([exportText()], { type: "text/plain;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${state.name.replace(/\.txt$/i, "")}-orden.txt`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function showCursor(score, hideDotId) {
+      ui.cursor.hidden = false;
+      ui.cursor.style.left = `${score * 100}%`;
+      ui.pill.textContent = formatScore(score);
+      const color = scoreColor(score);
+      ui.bead.style.background = color;
+      ui.pill.style.background = color;
+      for (const dot of ui.dots.querySelectorAll(".dot")) {
+        dot.style.visibility = dot.dataset.id === hideDotId ? "hidden" : "";
+      }
+    }
+
+    function hideCursor() {
+      ui.cursor.hidden = true;
+      for (const dot of ui.dots.querySelectorAll(".dot")) dot.style.visibility = "";
+    }
+
+    function setHot(id) {
+      hotId = id || null;
+      document.querySelectorAll(".is-hot").forEach((node) => node.classList.remove("is-hot"));
+      if (!hotId) return;
+      document.querySelectorAll(`[data-id="${CSS.escape(hotId)}"]`).forEach((node) => node.classList.add("is-hot"));
+    }
+
+    function ensureVisible(el) {
+      const scroller = ui.boardScroll;
+      const item = el.getBoundingClientRect();
+      const frame = scroller.getBoundingClientRect();
+      if (item.top < frame.top + 8) scroller.scrollTop -= frame.top + 8 - item.top;
+      else if (item.bottom > frame.bottom - 8) scroller.scrollTop += item.bottom - (frame.bottom - 8);
+    }
+
+    function assignLanes(railW, chipW) {
+      const sorted = [...state.placed].sort((a, b) => a.score - b.score || a.seq - b.seq);
+      const rights = [];
+      for (const item of sorted) {
+        const center = item.score * railW;
+        const left = center - chipW / 2;
+        let lane = 0;
+        while (lane < rights.length && left < rights[lane] + 10) lane += 1;
+        rights[lane] = center + chipW / 2;
+        item.lane = lane;
+      }
+      return rights.length;
+    }
+
+    function paintScore(chip, item) {
+      const score = chip.querySelector(".chip-score");
+      const label = formatScore(item.score);
+      if (score) {
+        score.textContent = label;
+        score.style.color = scoreColor(item.score);
+      }
+      chip.dataset.score = String(Math.round(item.score * 200 - 100));
+      chip.setAttribute("aria-label", `${label}. ${item.text}`);
+    }
+
+    function layout() {
+      if (!ui.workspace || ui.workspace.hidden) return;
+      const railRect = ui.rail.getBoundingClientRect();
+      if (railRect.width < 20) return;
+      const { chipW, pitch } = metrics();
+      let lanes = assignLanes(railRect.width, chipW);
+      ui.board.style.height = (lanes > 0 ? lanes * pitch + 16 : 0) + "px";
+      const rail = ui.rail.getBoundingClientRect();
+      if (Math.abs(rail.width - railRect.width) > 1) lanes = assignLanes(rail.width, chipW);
+      const board = ui.board.getBoundingClientRect();
+      const origin = rail.left - board.left;
+      const draggingId = state.drag && state.drag.kind === "chip" && !state.drag.pending ? state.drag.id : null;
+      for (const item of state.placed) {
+        const chip = qid(ui.board, item.id);
+        if (!chip) continue;
+        if (item.id === draggingId) positionDraggedChip(item);
+        else {
+          const x = Math.round(origin + item.score * rail.width - chipW / 2);
+          const y = Math.round(-item.lane * pitch);
+          chip.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        }
+        paintScore(chip, item);
+        const dot = qid(ui.dots, item.id);
+        if (dot) {
+          dot.style.left = `${item.score * 100}%`;
+          dot.style.background = scoreColor(item.score);
+        }
+      }
+    }
+
+    function positionDraggedChip(item) {
+      const chip = qid(ui.board, item.id);
+      if (!chip) return;
+      const rail = ui.rail.getBoundingClientRect();
+      const board = ui.board.getBoundingClientRect();
+      const { chipW, pitch } = metrics();
+      const lane = state.drag?.lane ?? item.lane ?? 0;
+      const x = Math.round(rail.left - board.left + item.score * rail.width - chipW / 2);
+      const y = Math.round(-lane * pitch - 8);
+      chip.style.transform = `translate3d(${x}px, ${y}px, 0) scale(1.03)`;
+      paintScore(chip, item);
+      const dot = qid(ui.dots, item.id);
+      if (dot) {
+        dot.style.left = `${item.score * 100}%`;
+        dot.style.background = scoreColor(item.score);
+      }
+      showCursor(item.score, item.id);
+    }
+
+    function createChip(item) {
+      const chip = document.createElement("div");
+      chip.className = "chip" + (item.id === hideChipId ? " is-hidden" : "");
+      chip.dataset.id = item.id;
+      chip.tabIndex = 0;
+      chip.setAttribute("role", "listitem");
+      const score = document.createElement("span");
+      score.className = "chip-score";
+      const text = document.createElement("p");
+      text.className = "chip-text";
+      text.textContent = item.text;
+      chip.append(score, text);
+      return chip;
+    }
+
+    function renderBoard() {
+      const existing = new Map([...ui.board.querySelectorAll(".chip")].map((node) => [node.dataset.id, node]));
+      const ids = new Set(state.placed.map((item) => item.id));
+      for (const [id, node] of existing) if (!ids.has(id)) node.remove();
+      for (const item of state.placed) {
+        if (!existing.has(item.id)) ui.board.appendChild(createChip(item));
+      }
+      ui.placeHint.hidden = state.placed.length > 0;
+    }
+
+    function renderDots() {
+      const have = new Set([...ui.dots.querySelectorAll(".dot")].map((dot) => dot.dataset.id));
+      const need = new Set(state.placed.map((item) => item.id));
+      for (const id of have) if (!need.has(id)) qid(ui.dots, id)?.remove();
+      for (const item of state.placed) {
+        if (have.has(item.id)) continue;
+        const dot = document.createElement("span");
+        dot.className = "dot";
+        dot.dataset.id = item.id;
+        ui.dots.appendChild(dot);
+      }
+    }
+
+    function updateCount() {
+      const count = document.getElementById("count");
+      const bar = document.getElementById("progress-bar");
+      const total = state.statements.length;
+      const done = state.placed.length;
+      if (bar) bar.style.transform = `scaleX(${total ? done / total : 0})`;
+      if (!count || !total) return;
+      count.textContent = state.activeId == null ? "Listo" : `${done + 1} de ${total}`;
+    }
+
+    function updateMeta() {
+      const total = state.statements.length;
+      ui.meta.textContent = total ? `${state.email} · ${total} enunciados` : "";
+      ui.btnUndo.disabled = state.placed.length === 0;
+      ui.btnReset.disabled = state.placed.length === 0;
+    }
+
+    function buildCard(item, animate) {
+      const wrap = document.createElement("div");
+      wrap.className = "dock-inner";
+      const count = document.createElement("div");
+      count.id = "count";
+      count.className = "count";
+      const slot = document.createElement("div");
+      slot.id = "slot";
+      slot.className = "slot";
+      const card = document.createElement("div");
+      card.id = "active-card";
+      card.className = "card" + (animate && !reduceMotion() ? " enter" : "");
+      card.tabIndex = 0;
+      card.setAttribute("aria-describedby", "hint");
+      const text = document.createElement("p");
+      text.textContent = item.text;
+      card.appendChild(text);
+      const hint = document.createElement("p");
+      hint.id = "hint";
+      hint.className = "hint";
+      hint.textContent = "Arrastra hasta la línea";
+      const keys = document.createElement("span");
+      keys.id = "hint-keys";
+      keys.textContent = "  ·  ← → y Enter";
+      hint.appendChild(keys);
+      slot.appendChild(card);
+      wrap.append(count, slot, hint);
+      card.addEventListener("pointerdown", onCardPointerDown);
+      requestAnimationFrame(() => card.focus({ preventScroll: true }));
+      return wrap;
+    }
+
+    function buildDone() {
+      const wrap = document.createElement("div");
+      wrap.className = "dock-inner done";
+      const head = document.createElement("div");
+      head.className = "done-head";
+      const titles = document.createElement("div");
+      const count = document.createElement("div");
+      count.id = "count";
+      count.className = "count";
+      count.textContent = "Listo";
+      const hint = document.createElement("p");
+      hint.className = "hint";
+      hint.textContent = "De disagree a agree. Puedes seguir moviendo las tarjetas.";
+      const save = document.createElement("p");
+      save.id = "save-status";
+      save.className = "hint";
+      save.textContent = state.saveStatus;
+      save.hidden = !state.saveStatus;
+      titles.append(count, hint, save);
+      const actions = document.createElement("div");
+      actions.className = "done-actions";
+      const copy = document.createElement("button");
+      copy.type = "button";
+      copy.className = "btn";
+      copy.id = "btn-copy";
+      copy.textContent = "Copiar";
+      const download = document.createElement("button");
+      download.type = "button";
+      download.className = "btn ghost";
+      download.id = "btn-download";
+      download.textContent = "Descargar";
+      const another = document.createElement("button");
+      another.type = "button";
+      another.className = "btn ghost";
+      another.id = "btn-another";
+      another.textContent = "Otro respondent";
+      actions.append(copy, download, another);
+      head.append(titles, actions);
+      const results = document.createElement("div");
+      results.id = "results";
+      results.className = "results";
+      wrap.append(head, results);
+      return wrap;
+    }
+
+    function createRow(item, index) {
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "row" + (item.id === hotId ? " is-hot" : "");
+      row.dataset.id = item.id;
+      row.title = item.text;
+      const n = document.createElement("span");
+      n.className = "row-n";
+      n.textContent = String(index + 1).padStart(2, "0");
+      const score = document.createElement("span");
+      score.className = "row-score";
+      score.textContent = formatScore(item.score);
+      score.style.color = scoreColor(item.score);
+      const track = document.createElement("span");
+      track.className = "row-track";
+      const fill = document.createElement("span");
+      fill.style.width = `${item.score * 100}%`;
+      fill.style.background = scoreColor(item.score);
+      track.appendChild(fill);
+      const text = document.createElement("span");
+      text.className = "row-text";
+      text.textContent = item.text;
+      row.append(n, score, track, text);
+      return row;
+    }
+
+    function renderResults() {
+      const box = document.getElementById("results");
+      if (!box || state.activeId != null) return;
+      const top = box.scrollTop;
+      box.replaceChildren(...ranked().map(createRow));
+      box.scrollTop = top;
+    }
+
+    function renderDock(options = {}) {
+      if (!state.statements.length) {
+        ui.intro.hidden = false;
+        ui.workspace.hidden = true;
+        dockSig = "";
+        return;
+      }
+      const signature = state.activeId == null ? "done" : `card:${state.activeId}`;
+      if (signature === dockSig) return;
+      dockSig = signature;
+      ui.dock.replaceChildren();
+      if (state.activeId == null) ui.dock.appendChild(buildDone());
+      else ui.dock.appendChild(buildCard(state.byId.get(state.activeId), options.animateCard));
+    }
+
+    function sync(options = {}) {
+      updateMeta();
+      const showApp = state.statements.length > 0;
+      ui.intro.hidden = showApp;
+      const wasHidden = ui.workspace.hidden;
+      ui.workspace.hidden = !showApp;
+      if (!showApp) {
+        dockSig = "";
+        return;
+      }
+      renderBoard();
+      renderDots();
+      renderDock(options);
+      renderResults();
+      updateCount();
+      layout();
+      if (wasHidden) requestAnimationFrame(() => layout());
+    }
+
+    function spawnFlyer(rect, text) {
+      const flyer = document.createElement("div");
+      flyer.className = "flyer";
+      const paragraph = document.createElement("p");
+      paragraph.textContent = text;
+      flyer.appendChild(paragraph);
+      Object.assign(flyer.style, {
+        left: `${rect.left}px`,
+        top: `${rect.top}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+        fontSize: "26px",
+        padding: "22px 32px",
+      });
+      document.body.appendChild(flyer);
+      return flyer;
+    }
+
+    function glide(flyer, from, to, onDone) {
+      const anim = flyer.animate([
+        {
+          left: `${from.left}px`,
+          top: `${from.top}px`,
+          width: `${from.width}px`,
+          height: `${from.height}px`,
+          borderRadius: "20px",
+          fontSize: "26px",
+          padding: "22px 32px",
+        },
+        {
+          left: `${to.left}px`,
+          top: `${to.top}px`,
+          width: `${to.width}px`,
+          height: `${to.height}px`,
+          borderRadius: "12px",
+          fontSize: "13.5px",
+          padding: "10px 12px",
+        },
+      ], { duration: 420, easing: "cubic-bezier(.16, 1, .3, 1)", fill: "forwards" });
+      const finish = () => {
+        onDone?.();
+        const fade = flyer.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 90, fill: "forwards" });
+        fade.onfinish = () => flyer.remove();
+      };
+      anim.onfinish = finish;
+      anim.oncancel = () => {
+        onDone?.();
+        flyer.remove();
+      };
+    }
+
+    function commitActive(score, fromRect, text) {
+      const id = state.activeId;
+      const item = state.byId.get(id);
+      if (!item) return;
+      const flyer = reduceMotion() ? null : spawnFlyer(fromRect, text || item.text);
+      state.placed.push({
+        id,
+        text: item.text,
+        score: clamp(score, 0, 1),
+        seq: state.nextSeq++,
+      });
+      state.activeId = state.queue.shift() ?? null;
+      state.keyScore = null;
+      hideCursor();
+      document.body.classList.remove("is-dragging");
+      hideChipId = flyer ? id : null;
+      dockSig = "";
+      persist();
+      sync({ animateCard: true });
+      hideChipId = null;
+      const chip = qid(ui.board, id);
+      if (!flyer || !chip) {
+        chip?.classList.remove("is-hidden");
+        flyer?.remove();
+      } else {
+        ensureVisible(chip);
+        glide(flyer, fromRect, chip.getBoundingClientRect(), () => chip.classList.remove("is-hidden"));
+      }
+      announce(`Colocado en ${formatScore(score)}.`);
+      scheduleSave(true);
+    }
+
+    function clearCardDragStyle(card) {
+      if (!card.isConnected) return;
+      card.style.transition = "";
+      card.style.transform = "";
+      card.style.position = "";
+      card.style.left = "";
+      card.style.top = "";
+      card.style.width = "";
+      card.style.margin = "";
+      card.style.animation = "";
+      const slot = document.getElementById("slot");
+      if (slot) slot.style.minHeight = "";
+    }
+
+    function springBack(card) {
+      if (!card?.isConnected) return;
+      const slot = document.getElementById("slot");
+      const current = card.getBoundingClientRect();
+      const slotRect = slot?.getBoundingClientRect();
+      card.classList.remove("dragging");
+      if (!slotRect) {
+        clearCardDragStyle(card);
+        return;
+      }
+      const dx = current.left - slotRect.left;
+      const dy = current.top - slotRect.top;
+      card.style.left = `${slotRect.left}px`;
+      card.style.top = `${slotRect.top}px`;
+      card.style.width = `${slotRect.width}px`;
+      card.style.transform = `translate(${dx}px, ${dy}px) scale(1)`;
+      const token = ++springToken;
+      requestAnimationFrame(() => {
+        if (token !== springToken || !card.isConnected) return;
+        card.style.transition = "transform .42s cubic-bezier(.16, 1, .3, 1)";
+        card.style.transform = "none";
+        const done = (event) => {
+          if (event.propertyName !== "transform") return;
+          card.removeEventListener("transitionend", done);
+          if (token !== springToken) return;
+          clearCardDragStyle(card);
+        };
+        card.addEventListener("transitionend", done);
+        setTimeout(() => {
+          if (token !== springToken) return;
+          clearCardDragStyle(card);
+        }, 520);
+      });
+    }
+
+    function beginCardDrag(drag, x, y) {
+      const card = drag.card;
+      if (!card.isConnected) {
+        state.drag = null;
+        return;
+      }
+      springToken += 1;
+      card.getAnimations().forEach((anim) => anim.cancel());
+      card.classList.remove("enter");
+      card.style.animation = "none";
+      const rect = card.getBoundingClientRect();
+      drag.dx = drag.startX - rect.left;
+      drag.dy = drag.startY - rect.top;
+      const slot = document.getElementById("slot");
+      if (slot) slot.style.minHeight = `${rect.height}px`;
+      card.classList.add("dragging");
+      card.style.transition = "none";
+      card.style.position = "fixed";
+      card.style.margin = "0";
+      card.style.width = `${rect.width}px`;
+      card.style.left = `${x - drag.dx}px`;
+      card.style.top = `${y - drag.dy}px`;
+      card.style.transform = "scale(1.015)";
+      drag.pending = false;
+      document.body.classList.add("is-dragging");
+    }
+
+    function beginChipDrag(drag) {
+      qid(ui.board, drag.id)?.classList.add("dragging");
+      drag.pending = false;
+      document.body.classList.add("is-dragging");
+    }
+
+    function finishChipDrag() {
+      const drag = state.drag;
+      state.drag = null;
+      document.body.classList.remove("is-dragging");
+      hideCursor();
+      const chip = qid(ui.board, drag.id);
+      chip?.classList.remove("dragging");
+      if (chip) void chip.offsetWidth;
+      layout();
+      persist();
+      renderResults();
+      scheduleSave();
+    }
+
+    function onCardPointerDown(event) {
+      if (event.button !== 0 || state.drag) return;
+      event.preventDefault();
+      const card = event.currentTarget;
+      const rect = card.getBoundingClientRect();
+      try { card.setPointerCapture(event.pointerId); } catch { /* no active pointer yet */ }
+      state.drag = {
+        kind: "card",
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        dx: event.clientX - rect.left,
+        dy: event.clientY - rect.top,
+        pending: true,
+        card,
+      };
+    }
+
+    function onChipPointerDown(event) {
+      const chip = event.target.closest(".chip");
+      if (!chip || event.button !== 0 || state.drag) return;
+      const item = state.placed.find((placed) => placed.id === chip.dataset.id);
+      if (!item) return;
+      event.preventDefault();
+      try { chip.setPointerCapture(event.pointerId); } catch { /* no active pointer yet */ }
+      state.drag = {
+        kind: "chip",
+        id: item.id,
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        lane: item.lane ?? 0,
+        originalScore: item.score,
+        pending: true,
+      };
+    }
+
+    function applyMove(drag) {
+      const dist = Math.hypot(drag.clientX - drag.startX, drag.clientY - drag.startY);
+      if (drag.pending) {
+        if (dist < 6) return;
+        if (drag.kind === "card") beginCardDrag(drag, drag.clientX, drag.clientY);
+        else beginChipDrag(drag);
+      }
+      if (drag.pending || state.drag !== drag) return;
+      if (drag.kind === "card") {
+        const card = drag.card;
+        if (!card.isConnected) return;
+        card.style.left = `${drag.clientX - drag.dx}px`;
+        card.style.top = `${drag.clientY - drag.dy}px`;
+        const rect = card.getBoundingClientRect();
+        showCursor(scoreFromClientX(rect.left + rect.width / 2));
+        return;
+      }
+      const item = state.placed.find((placed) => placed.id === drag.id);
+      if (!item) return;
+      item.score = scoreFromClientX(drag.clientX);
+      positionDraggedChip(item);
+    }
+
+    function flushDrag(drag) {
+      if (drag.raf) {
+        cancelAnimationFrame(drag.raf);
+        drag.raf = 0;
+      }
+      if (drag.clientX == null) return;
+      applyMove(drag);
+    }
+
+    function onPointerMove(event) {
+      const drag = state.drag;
+      if (!drag || drag.keyboard || event.pointerId !== drag.pointerId) return;
+      drag.clientX = event.clientX;
+      drag.clientY = event.clientY;
+      if (drag.raf) return;
+      drag.raf = requestAnimationFrame(() => {
+        drag.raf = 0;
+        if (state.drag !== drag) return;
+        applyMove(drag);
+      });
+    }
+
+    function onPointerUp(event) {
+      const drag = state.drag;
+      if (!drag || drag.keyboard || event.pointerId !== drag.pointerId) return;
+      flushDrag(drag);
+      if (drag.kind === "chip") {
+        if (drag.pending) {
+          state.drag = null;
+          qid(ui.board, drag.id)?.focus({ preventScroll: true });
+          return;
+        }
+        finishChipDrag();
+        return;
+      }
+      const card = drag.card;
+      if (drag.pending) {
+        state.drag = null;
+        return;
+      }
+      const rect = card.getBoundingClientRect();
+      const dist = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY);
+      const accept = dist >= 6 && overSpectrum(event.clientY);
+      state.drag = null;
+      document.body.classList.remove("is-dragging");
+      hideCursor();
+      if (!accept || !card.isConnected) {
+        springBack(card);
+        return;
+      }
+      commitActive(scoreFromClientX(rect.left + rect.width / 2), rect, state.byId.get(state.activeId)?.text);
+    }
+
+    function onPointerCancel(event) {
+      const drag = state.drag;
+      if (!drag || drag.keyboard || event.pointerId !== drag.pointerId) return;
+      if (drag.raf) cancelAnimationFrame(drag.raf);
+      if (drag.kind === "chip") {
+        const item = state.placed.find((placed) => placed.id === drag.id);
+        if (item && !drag.pending) item.score = drag.originalScore;
+        const chip = qid(ui.board, drag.id);
+        chip?.classList.remove("dragging");
+        state.drag = null;
+        document.body.classList.remove("is-dragging");
+        hideCursor();
+        layout();
+        return;
+      }
+      const card = drag.card;
+      state.drag = null;
+      document.body.classList.remove("is-dragging");
+      hideCursor();
+      if (drag.pending) return;
+      springBack(card);
+    }
+
+    function cancelPointerDrag() {
+      const drag = state.drag;
+      if (!drag || drag.keyboard) return;
+      if (drag.kind === "chip") {
+        const item = state.placed.find((placed) => placed.id === drag.id);
+        if (item && !drag.pending) item.score = drag.originalScore;
+        qid(ui.board, drag.id)?.classList.remove("dragging");
+        state.drag = null;
+        document.body.classList.remove("is-dragging");
+        hideCursor();
+        layout();
+        return;
+      }
+      const card = drag.card;
+      const pending = drag.pending;
+      state.drag = null;
+      document.body.classList.remove("is-dragging");
+      hideCursor();
+      if (!pending) springBack(card);
+    }
+
+    function nudgeChip(chip, key, shift) {
+      const item = state.placed.find((placed) => placed.id === chip.dataset.id);
+      if (!item) return;
+      const step = shift ? 0.05 : 0.01;
+      if (!state.drag || !state.drag.keyboard) {
+        state.drag = { kind: "chip", id: item.id, lane: item.lane ?? 0, pending: false, keyboard: true };
+        chip.classList.add("dragging");
+      }
+      if (key === "Home") item.score = 0;
+      else if (key === "End") item.score = 1;
+      else item.score = clamp(item.score + (key === "ArrowLeft" ? -step : step), 0, 1);
+      nudgeId = item.id;
+      positionDraggedChip(item);
+    }
+
+    function releaseNudge() {
+      if (!nudgeId) return;
+      const chip = qid(ui.board, nudgeId);
+      nudgeId = null;
+      if (state.drag?.keyboard) state.drag = null;
+      chip?.classList.remove("dragging");
+      if (chip) void chip.offsetWidth;
+      hideCursor();
+      layout();
+      persist();
+      renderResults();
+      scheduleSave();
+    }
+
+    function onKeyDown(event) {
+      const key = event.key;
+      if ((event.metaKey || event.ctrlKey) && key.toLowerCase() === "z" && !event.shiftKey) {
+        event.preventDefault();
+        undo();
+        return;
+      }
+      if (key === "Escape") {
+        state.keyScore = null;
+        hideCursor();
+        cancelPointerDrag();
+        releaseNudge();
+        return;
+      }
+      const chip = document.activeElement?.closest?.(".chip");
+      if (chip && (key === "ArrowLeft" || key === "ArrowRight" || key === "Home" || key === "End")) {
+        if (state.drag && !state.drag.keyboard) return;
+        event.preventDefault();
+        nudgeChip(chip, key, event.shiftKey);
+        return;
+      }
+      const card = document.getElementById("active-card");
+      if (!card || document.activeElement !== card || state.drag) return;
+      if (key === "ArrowLeft" || key === "ArrowRight" || key === "Home" || key === "End") {
+        event.preventDefault();
+        const step = event.shiftKey ? 0.05 : 0.01;
+        if (state.keyScore == null) state.keyScore = 0.5;
+        if (key === "Home") state.keyScore = 0;
+        else if (key === "End") state.keyScore = 1;
+        else state.keyScore = clamp(state.keyScore + (key === "ArrowLeft" ? -step : step), 0, 1);
+        showCursor(state.keyScore);
+        return;
+      }
+      if (key === "Enter") {
+        event.preventDefault();
+        if (state.keyScore == null) {
+          const hint = document.getElementById("hint");
+          if (hint) {
+            hint.classList.remove("attn");
+            void hint.offsetWidth;
+            hint.classList.add("attn");
+          }
+          return;
+        }
+        commitActive(state.keyScore, card.getBoundingClientRect());
+      }
+    }
+
+    function onKeyUp(event) {
+      if (!nudgeId) return;
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "Home" || event.key === "End") {
+        releaseNudge();
+      }
+    }
+
+    function bind() {
+      ui.startForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        beginSession(ui.email.value);
+      });
+      ui.btnRetry.addEventListener("click", loadDeck);
+      ui.btnUndo.addEventListener("click", undo);
+      ui.btnReset.addEventListener("click", resetPlacements);
+
+      ui.board.addEventListener("pointerdown", onChipPointerDown);
+      ui.board.addEventListener("pointerover", (event) => {
+        const chip = event.target.closest(".chip");
+        if (chip) setHot(chip.dataset.id);
+      });
+      ui.board.addEventListener("pointerleave", () => setHot(null));
+      ui.dock.addEventListener("pointerover", (event) => {
+        const row = event.target.closest(".row");
+        if (row) setHot(row.dataset.id);
+      });
+      ui.dock.addEventListener("pointerleave", (event) => {
+        if (!event.relatedTarget?.closest?.(".chip")) setHot(null);
+      });
+      ui.dock.addEventListener("click", (event) => {
+        if (event.target.closest("#btn-copy")) copyResult();
+        else if (event.target.closest("#btn-download")) downloadResult();
+        else if (event.target.closest("#btn-another")) newRespondent();
+        else {
+          const row = event.target.closest(".row");
+          const chip = row && qid(ui.board, row.dataset.id);
+          if (chip) {
+            ensureVisible(chip);
+            setHot(row.dataset.id);
+          }
+        }
+      });
+
+      document.addEventListener("pointermove", onPointerMove);
+      document.addEventListener("pointerup", onPointerUp);
+      document.addEventListener("pointercancel", onPointerCancel);
+      document.addEventListener("keydown", onKeyDown);
+      document.addEventListener("keyup", onKeyUp);
+
+      new ResizeObserver(() => layout()).observe(ui.rail);
+      document.fonts?.ready.then(() => layout());
+    }
+
+    function init() {
+      ui.intro = document.getElementById("intro");
+      ui.workspace = document.getElementById("workspace");
+      ui.board = document.getElementById("board");
+      ui.boardScroll = document.getElementById("board-scroll");
+      ui.rail = document.getElementById("rail");
+      ui.dots = document.getElementById("dots");
+      ui.cursor = document.getElementById("cursor");
+      ui.pill = document.getElementById("pill");
+      ui.bead = document.getElementById("bead");
+      ui.axis = document.getElementById("axis");
+      ui.dock = document.getElementById("dock");
+      ui.meta = document.getElementById("meta");
+      ui.toast = document.getElementById("toast");
+      ui.status = document.getElementById("status");
+      ui.placeHint = document.getElementById("place-hint");
+      ui.startForm = document.getElementById("start-form");
+      ui.email = document.getElementById("email");
+      ui.loadNote = document.getElementById("load-note");
+      ui.btnRetry = document.getElementById("btn-retry");
+      ui.btnUndo = document.getElementById("btn-undo");
+      ui.btnReset = document.getElementById("btn-reset");
+      try { localStorage.removeItem("espectro-v1"); } catch { /* ignore */ }
+      bind();
+      loadDeck();
+    }
+
+    init();
+  </script>
+</body>
+</html>
