@@ -882,7 +882,7 @@
       setSaveStatus("Saving…");
       callJsonp(src, callback, 20000).then((data) => {
         if (seq !== saveSeq) return;
-        if (data && data.ok) setSaveStatus("Saved to the sheet.");
+        if (data && data.ok) setSaveStatus("Inputs saved");
         else setSaveStatus("Could not save.");
       }).catch(() => {
         if (seq !== saveSeq) return;
