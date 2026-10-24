@@ -144,6 +144,16 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      background: linear-gradient(
+        90deg,
+        #eab395 0%,
+        #f5d7c2 20%,
+        #f7ebe4 40%,
+        #ffffff 50%,
+        #ecf1f4 60%,
+        #d6e3ee 80%,
+        #adcde1 100%
+      );
     }
 
     .header-row {
@@ -353,8 +363,7 @@
       flex: none;
       overflow: visible;
       padding: 4px var(--side) max(16px, env(safe-area-inset-bottom));
-      background: #fff;
-      border-top: 1px solid var(--line);
+      background: transparent;
     }
     .dock-inner { width: min(720px, 100%); margin: 0 auto; }
     .count {
