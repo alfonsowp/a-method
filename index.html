@@ -938,7 +938,7 @@
       ui.dots.replaceChildren();
       ui.dock.replaceChildren();
       ui.email.value = "";
-      showGate(state.deck.length ? `${state.deck.length} statements` : "", { form: state.deck.length > 0 });
+      showGate("", { form: state.deck.length > 0 });
     }
 
     function loadDeck() {
@@ -960,7 +960,7 @@
         }
         const saved = readSession();
         if (saved && typeof saved.email === "string") ui.email.value = saved.email;
-        showGate(`${state.deck.length} statements`, { form: true });
+        showGate("", { form: true });
       }).catch(() => {
         if (token !== deckRequest) return;
         state.deck = [];
