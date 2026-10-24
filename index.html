@@ -1,22 +1,20 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f2efe8">
-  <title>Espectro</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='4' cy='8' r='2.3' fill='%23d4532b'/><circle cx='12' cy='8' r='2.3' fill='%230f7a45'/></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#ffffff">
+  <title>Quant Perspectives</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='4' cy='8' r='2.2' fill='%23161616'/><circle cx='12' cy='8' r='2.2' fill='%233f3f3f'/></svg>">
   <style>
     :root {
-      --bg: #f2efe8;
-      --ink: #1f1b16;
-      --muted: #746d63;
-      --card: #fffdfb;
-      --disagree: #d4532b;
-      --agree: #0f7a45;
+      --bg: #ffffff;
+      --ink: #161616;
+      --muted: #3f3f3f;
+      --line: #d5d5d5;
+      --card: #ffffff;
+      --disagree: #161616;
+      --agree: #3f3f3f;
       --side: 22px;
       --chip-w: 200px;
       --chip-h: 118px;
@@ -34,11 +32,8 @@
       margin: 0;
       overflow: hidden;
       color: var(--ink);
-      background:
-        radial-gradient(1000px 420px at -10% -20%, rgba(212, 83, 43, .07), transparent 50%),
-        radial-gradient(900px 420px at 110% -30%, rgba(15, 122, 69, .07), transparent 46%),
-        var(--bg);
-      font-family: Outfit, "Avenir Next", "Segoe UI", sans-serif;
+      background: var(--bg);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-size: 16px;
       line-height: 1.4;
     }
@@ -60,22 +55,21 @@
     }
 
     .btn {
-      border: 0;
-      border-radius: 999px;
+      border: 1px solid var(--ink);
+      border-radius: 2px;
       padding: 10px 16px;
       background: var(--ink);
-      color: #f6f3ec;
+      color: #fff;
       cursor: pointer;
       font-weight: 500;
-      letter-spacing: .01em;
+      letter-spacing: 0;
     }
     .btn.ghost {
-      background: transparent;
+      background: #fff;
       color: var(--ink);
-      box-shadow: inset 0 0 0 1px rgba(31, 27, 22, .18);
     }
-    .btn:hover { filter: brightness(1.08); }
-    .btn.ghost:hover { background: rgba(31, 27, 22, .04); filter: none; }
+    .btn:hover { background: #2a2a2a; }
+    .btn.ghost:hover { background: #f3f3f3; }
     .btn:not(:disabled):active { transform: scale(.98); }
     .btn:disabled { opacity: .32; cursor: default; filter: none; }
 
@@ -99,18 +93,17 @@
     }
     h1 {
       margin: 0;
-      font-family: Fraunces, Georgia, serif;
-      font-weight: 600;
-      font-size: clamp(64px, 10vw, 104px);
-      letter-spacing: -.05em;
-      line-height: .88;
+      font-weight: 500;
+      font-size: clamp(36px, 5vw, 52px);
+      letter-spacing: -0.02em;
+      line-height: 1.05;
     }
     .lede {
       margin: 18px 0 0;
-      max-width: 38ch;
-      font-size: 18px;
+      max-width: 42ch;
+      font-size: 17px;
       line-height: 1.45;
-      color: #4e4943;
+      color: var(--muted);
     }
     .start-form {
       margin-top: 28px;
@@ -131,13 +124,12 @@
     .email {
       flex: 1 1 260px;
       min-width: 0;
-      border: 0;
-      border-radius: 999px;
-      padding: 12px 18px;
-      background: var(--card);
+      border: 1px solid #bdbdbd;
+      border-radius: 2px;
+      padding: 12px 14px;
+      background: #fff;
       color: var(--ink);
       font: inherit;
-      box-shadow: inset 0 0 0 1px rgba(31, 27, 22, .16);
     }
     .load-note {
       margin: 18px 0 0;
@@ -162,20 +154,12 @@
       padding: 12px var(--side) 10px;
     }
     .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-    .logo {
-      width: 42px;
-      height: 8px;
-      border-radius: 99px;
-      background: linear-gradient(90deg, var(--disagree), #e4d8c8 52%, var(--agree));
-      flex: none;
-    }
     .brand strong {
       display: block;
-      font-family: Fraunces, Georgia, serif;
-      font-size: 20px;
-      font-weight: 600;
-      letter-spacing: -.03em;
-      line-height: 1;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0;
+      line-height: 1.2;
     }
     #meta {
       margin-top: 3px;
@@ -237,8 +221,7 @@
       letter-spacing: .16em;
       text-transform: uppercase;
     }
-    .axis-labels span:first-child { color: var(--disagree); }
-    .axis-labels span:last-child { color: var(--agree); }
+    .axis-labels span { color: var(--ink); }
     .ticks {
       margin-top: 8px;
       color: var(--muted);
@@ -249,9 +232,9 @@
     .rail-wrap { padding: 0 var(--gutter); }
     .rail {
       position: relative;
-      height: 2px;
-      border-radius: 99px;
-      background: linear-gradient(90deg, var(--disagree), #d9cfc2 50%, var(--agree));
+      height: 1px;
+      border-radius: 0;
+      background: var(--ink);
     }
     .rail::before {
       content: "";
@@ -261,10 +244,6 @@
       right: 0;
       top: -16px;
       height: 34px;
-      border-radius: 99px;
-      background: linear-gradient(90deg, rgba(212, 83, 43, .13), rgba(217, 207, 194, .08) 50%, rgba(15, 122, 69, .13));
-      opacity: .55;
-      transition: opacity .2s;
     }
     body.is-dragging .rail::before { opacity: 1; }
     body.is-dragging .rail { height: 3px; }
@@ -275,9 +254,8 @@
       width: 9px;
       height: 9px;
       border-radius: 50%;
-      border: 2px solid #fffdfb;
+      border: 2px solid #fff;
       transform: translate(-50%, -50%);
-      box-shadow: 0 0 0 1px rgba(31, 27, 22, .05);
     }
     .dot.is-hot { transform: translate(-50%, -50%) scale(1.45); }
     .cursor {
@@ -292,9 +270,9 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      border: 2px solid #fffdfb;
+      border: 2px solid #fff;
       transform: translate(-50%, -50%);
-      box-shadow: 0 4px 12px rgba(31, 27, 22, .18);
+      box-shadow: 0 0 0 1px var(--ink);
     }
     .pill {
       position: absolute;
@@ -302,7 +280,7 @@
       bottom: 16px;
       transform: translateX(-50%);
       padding: 3px 7px;
-      border-radius: 999px;
+      border-radius: 2px;
       background: var(--ink);
       color: white;
       font-size: 12px;
@@ -318,10 +296,9 @@
       width: var(--chip-w);
       height: var(--chip-h);
       padding: 10px 12px 12px;
-      border-radius: 12px;
-      background: var(--card);
-      border: 1px solid rgba(31, 27, 22, .06);
-      box-shadow: 0 8px 22px rgba(55, 38, 16, .06);
+      border-radius: 2px;
+      background: #fff;
+      border: 1px solid var(--line);
       cursor: grab;
       touch-action: none;
       user-select: none;
@@ -339,10 +316,9 @@
     .chip-text {
       margin: 0;
       padding-right: 34px;
-      font-family: Fraunces, Georgia, serif;
-      font-size: 13.5px;
-      font-weight: 500;
-      letter-spacing: -.015em;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0;
       line-height: 1.28;
       text-wrap: pretty;
       display: -webkit-box;
@@ -354,7 +330,7 @@
       height: auto;
       min-height: var(--chip-h);
       z-index: 8;
-      box-shadow: 0 16px 36px rgba(55, 38, 16, .13);
+      border-color: var(--ink);
     }
     .chip:hover .chip-text,
     .chip.is-hot .chip-text,
@@ -367,7 +343,7 @@
       z-index: 9;
       transition: none;
       cursor: grabbing;
-      box-shadow: 0 18px 40px rgba(55, 38, 16, .16);
+      border-color: var(--ink);
     }
     .is-hidden { visibility: hidden !important; }
 
@@ -377,7 +353,8 @@
       flex: none;
       overflow: visible;
       padding: 4px var(--side) max(16px, env(safe-area-inset-bottom));
-      background: linear-gradient(to top, var(--bg) 78%, rgba(242, 239, 232, 0));
+      background: #fff;
+      border-top: 1px solid var(--line);
     }
     .dock-inner { width: min(720px, 100%); margin: 0 auto; }
     .count {
@@ -395,36 +372,30 @@
       position: relative;
       width: 100%;
       min-height: 132px;
-      padding: 18px 32px 24px;
-      background: var(--card);
-      border-radius: 20px;
-      border: 1px solid rgba(31, 27, 22, .05);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, .75) inset,
-        0 18px 44px rgba(55, 38, 16, .09),
-        0 2px 6px rgba(55, 38, 16, .04);
+      padding: 22px 28px 24px;
+      background: #fff;
+      border-radius: 2px;
+      border: 1px solid var(--line);
       cursor: grab;
       touch-action: none;
       user-select: none;
-      font-family: Fraunces, Georgia, serif;
-      font-size: clamp(20px, 2.4vw, 28px);
-      font-weight: 500;
-      letter-spacing: -.02em;
+      font-size: clamp(18px, 2vw, 22px);
+      font-weight: 400;
+      letter-spacing: 0;
       line-height: 1.28;
     }
     .card::before {
       content: "";
       display: block;
-      width: 36px;
-      height: 4px;
-      margin: 0 auto 14px;
-      border-radius: 99px;
-      background: rgba(31, 27, 22, .14);
+      width: 28px;
+      height: 1px;
+      margin: 0 auto 16px;
+      background: var(--muted);
     }
     .card p { margin: 0; text-wrap: pretty; }
     .card.dragging {
       cursor: grabbing;
-      box-shadow: 0 30px 70px rgba(55, 38, 16, .18), 0 8px 18px rgba(55, 38, 16, .06);
+      border-color: var(--ink);
     }
     .card.enter { animation: rise .5s cubic-bezier(.16, 1, .3, 1) .04s both; }
     .hint {
@@ -451,7 +422,7 @@
       overflow: auto;
       margin-top: 12px;
       padding-top: 6px;
-      border-top: 1px solid rgba(31, 27, 22, .07);
+      border-top: 1px solid var(--line);
       display: flex;
       flex-direction: column;
       gap: 2px;
@@ -465,14 +436,14 @@
       text-align: left;
       padding: 6px 8px;
       border: 0;
-      border-radius: 10px;
+      border-radius: 2px;
       background: transparent;
       color: inherit;
       cursor: pointer;
       font: inherit;
       font-size: 14px;
     }
-    .row:hover, .row.is-hot { background: rgba(255, 253, 251, .88); }
+    .row:hover, .row.is-hot { background: #f4f4f4; }
     .row-n { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
     .row-score { font-weight: 600; font-variant-numeric: tabular-nums; font-size: 13px; }
     .row-track {
@@ -480,7 +451,7 @@
       display: block;
       height: 3px;
       border-radius: 99px;
-      background: rgba(31, 27, 22, .08);
+      background: #e6e6e6;
     }
     .row-track > span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: inherit; }
     .row-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -492,24 +463,21 @@
       overflow: hidden;
       pointer-events: none;
       box-sizing: border-box;
-      background: var(--card);
+      background: #fff;
       color: var(--ink);
-      border-radius: 20px;
-      border: 1px solid rgba(31, 27, 22, .05);
-      box-shadow: 0 24px 60px rgba(55, 38, 16, .16);
-      font-family: Fraunces, Georgia, serif;
-      font-weight: 500;
-      letter-spacing: -.02em;
+      border-radius: 2px;
+      border: 1px solid var(--ink);
+      font-weight: 400;
+      letter-spacing: 0;
       line-height: 1.28;
     }
     .flyer::before {
       content: "";
       display: block;
-      width: 36px;
-      height: 4px;
-      margin: 0 auto 14px;
-      border-radius: 99px;
-      background: rgba(31, 27, 22, .14);
+      width: 28px;
+      height: 1px;
+      margin: 0 auto 16px;
+      background: var(--muted);
     }
     .flyer p { margin: 0; }
 
@@ -517,17 +485,15 @@
       position: fixed;
       inset: 14px;
       z-index: 80;
-      border-radius: 24px;
-      border: 2px dashed rgba(31, 27, 22, .45);
-      background: rgba(242, 239, 232, .78);
-      backdrop-filter: blur(6px);
+      border-radius: 2px;
+      border: 1px solid var(--ink);
+      background: rgba(255, 255, 255, .92);
       display: grid;
       place-items: center;
       text-align: center;
       padding: 24px;
-      font-family: Fraunces, Georgia, serif;
-      font-size: clamp(28px, 4vw, 46px);
-      letter-spacing: -.03em;
+      font-size: 28px;
+      letter-spacing: 0;
       pointer-events: none;
     }
     #toast {
@@ -538,11 +504,10 @@
       transform: translateX(-50%);
       max-width: min(520px, calc(100% - 32px));
       padding: 10px 14px;
-      border-radius: 999px;
+      border-radius: 2px;
       background: var(--ink);
-      color: #f6f3ec;
+      color: #fff;
       font-size: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, .16);
     }
 
     body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
@@ -584,15 +549,15 @@
   <section id="intro">
     <div class="intro-inner">
       <p class="eyebrow">Disagree · Agree</p>
-      <h1>Espectro</h1>
-      <p class="lede">Arrastra cada enunciado a lo largo de la línea. Salen de uno en uno: el siguiente aparece cuando sueltas el anterior.</p>
-      <p class="load-note" id="load-note">Cargando enunciados…</p>
+      <h1>Quant Perspectives</h1>
+      <p class="lede">Drag each statement along the line. The next one appears when you release the previous one.</p>
+      <p class="load-note" id="load-note">Loading statements…</p>
       <form id="start-form" class="start-form" hidden>
-        <label class="email-label" for="email">Tu email</label>
-        <input id="email" class="email" type="email" name="email" autocomplete="email" inputmode="email" spellcheck="false" required placeholder="nombre@empresa.com">
-        <button class="btn" id="btn-start" type="submit">Empezar</button>
+        <label class="email-label" for="email">Your email</label>
+        <input id="email" class="email" type="email" name="email" autocomplete="email" inputmode="email" spellcheck="false" required placeholder="name@company.com">
+        <button class="btn" id="btn-start" type="submit">Start</button>
       </form>
-      <button type="button" class="btn ghost" id="btn-retry" hidden>Reintentar</button>
+      <button type="button" class="btn ghost" id="btn-retry" hidden>Retry</button>
     </div>
   </section>
 
@@ -600,24 +565,23 @@
     <header>
       <div class="header-row">
         <div class="brand">
-          <span class="logo" aria-hidden="true"></span>
           <div>
-            <strong>Espectro</strong>
+            <strong>Quant Perspectives</strong>
             <div id="meta"></div>
           </div>
         </div>
         <div class="header-actions">
-          <button type="button" class="btn ghost" id="btn-undo" disabled>Deshacer</button>
-          <button type="button" class="btn ghost" id="btn-reset" disabled>Reiniciar</button>
+          <button type="button" class="btn ghost" id="btn-undo" disabled>Undo</button>
+          <button type="button" class="btn ghost" id="btn-reset" disabled>Reset</button>
         </div>
       </div>
       <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
     </header>
     <div class="board-scroll" id="board-scroll">
-      <div id="board" class="board" role="list" aria-label="Enunciados colocados"></div>
+      <div id="board" class="board" role="list" aria-label="Placed statements"></div>
     </div>
     <div class="axis" id="axis">
-      <p id="place-hint" class="place-hint">Suelta la tarjeta en esta zona</p>
+      <p id="place-hint" class="place-hint">Drop the card in this area</p>
       <div class="axis-labels"><span>Disagree</span><span>Agree</span></div>
       <div class="rail-wrap">
         <div id="rail" class="rail">
@@ -687,13 +651,8 @@
       return "0";
     }
 
-    function scoreColor(t) {
-      const mix = (a, b, u) => a.map((v, i) => Math.round(v + (b[i] - v) * u));
-      const disagree = [212, 83, 43];
-      const mid = [122, 112, 100];
-      const agree = [15, 122, 69];
-      const c = t < 0.5 ? mix(disagree, mid, t / 0.5) : mix(mid, agree, (t - 0.5) / 0.5);
-      return `rgb(${c.join(",")})`;
+    function scoreColor() {
+      return "rgb(22, 22, 22)";
     }
 
     function metrics() {
@@ -893,7 +852,7 @@
       clearTimeout(saveTimer);
       const email = state.email;
       const scores = scoresInOrder().join(",");
-      setSaveStatus(SCRIPT_URL ? "Guardando…" : "Falta conectar el guardado en la hoja.");
+      setSaveStatus(SCRIPT_URL ? "Saving…" : "The sheet is not connected yet.");
       if (immediate) {
         submitScores(email, scores);
         return;
@@ -904,21 +863,21 @@
     function submitScores(email, scores) {
       if (!email) return;
       if (!SCRIPT_URL) {
-        setSaveStatus("Falta conectar el guardado en la hoja.");
+        setSaveStatus("The sheet is not connected yet.");
         return;
       }
       const seq = ++saveSeq;
       const callback = "espectroSave_" + Math.random().toString(36).slice(2);
       const src = SCRIPT_URL + (SCRIPT_URL.includes("?") ? "&" : "?")
         + new URLSearchParams({ callback, email, scores }).toString();
-      setSaveStatus("Guardando…");
+      setSaveStatus("Saving…");
       callJsonp(src, callback, 20000).then((data) => {
         if (seq !== saveSeq) return;
-        if (data && data.ok) setSaveStatus("Guardado en la hoja.");
-        else setSaveStatus("No se ha podido guardar.");
+        if (data && data.ok) setSaveStatus("Saved to the sheet.");
+        else setSaveStatus("Could not save.");
       }).catch(() => {
         if (seq !== saveSeq) return;
-        setSaveStatus("No se ha podido guardar.");
+        setSaveStatus("Could not save.");
       });
     }
 
@@ -936,7 +895,7 @@
     function beginSession(raw) {
       const email = raw.trim().toLowerCase();
       if (!validEmail(email)) {
-        toast("Escribe un email válido.");
+        toast("Enter a valid email.");
         ui.email.focus();
         return;
       }
@@ -970,7 +929,7 @@
       ui.dots.replaceChildren();
       ui.dock.replaceChildren();
       ui.email.value = "";
-      showGate(state.deck.length ? `${state.deck.length} enunciados` : "", { form: state.deck.length > 0 });
+      showGate(state.deck.length ? `${state.deck.length} statements` : "", { form: state.deck.length > 0 });
     }
 
     function loadDeck() {
@@ -978,13 +937,13 @@
       ui.startForm.hidden = true;
       ui.btnRetry.hidden = true;
       ui.loadNote.hidden = false;
-      ui.loadNote.textContent = "Cargando enunciados…";
+      ui.loadNote.textContent = "Loading statements…";
       ui.intro.hidden = false;
       fetchStatements().then((lines) => {
         if (token !== deckRequest) return;
         if (!lines.length) throw new Error("empty");
         state.deck = lines.length > 400 ? lines.slice(0, 400) : lines;
-        if (lines.length > 400) toast("Se han cargado los primeros 400 enunciados.");
+        if (lines.length > 400) toast("Only the first 400 statements were loaded.");
         if (tryRestore()) {
           sync({ animateCard: false });
           if (isComplete()) scheduleSave();
@@ -992,27 +951,27 @@
         }
         const saved = readSession();
         if (saved && typeof saved.email === "string") ui.email.value = saved.email;
-        showGate(`${state.deck.length} enunciados`, { form: true });
+        showGate(`${state.deck.length} statements`, { form: true });
       }).catch(() => {
         if (token !== deckRequest) return;
         state.deck = [];
-        showGate("No se han podido cargar los enunciados.", { retry: true });
+        showGate("The statements could not be loaded.", { retry: true });
       });
     }
 
     function loadStatements(text, name) {
       let lines = parseStatements(text);
       if (!lines.length) {
-        toast("No hay enunciados.");
+        toast("There are no statements.");
         return;
       }
       if (lines.length > 400) {
         lines = lines.slice(0, 400);
-        toast("Se han cargado los primeros 400 enunciados.");
+        toast("Only the first 400 statements were loaded.");
       }
       const statements = lines.map((line, index) => ({ id: String(index + 1), text: line }));
       document.querySelectorAll(".flyer").forEach((node) => node.remove());
-      state.name = name || "enunciados.txt";
+      state.name = name || "statements.txt";
       state.statements = statements;
       state.byId = new Map(statements.map((item) => [item.id, item]));
       state.placed = [];
@@ -1029,7 +988,7 @@
       dockSig = "";
       persist();
       sync({ animateCard: true });
-      announce(`${statements.length} enunciados cargados.`);
+      announce(`${statements.length} statements loaded.`);
     }
 
     function resetPlacements() {
@@ -1061,7 +1020,7 @@
       dockSig = "";
       persist();
       sync({ animateCard: true });
-      announce("Tarjeta recuperada.");
+      announce("Card restored.");
     }
 
     function exportText() {
@@ -1073,9 +1032,9 @@
       const text = exportText();
       try {
         await navigator.clipboard.writeText(text);
-        toast("Orden copiado.");
+        toast("Order copied.");
       } catch {
-        toast("No se ha podido copiar.");
+        toast("Could not copy.");
       }
     }
 
@@ -1083,7 +1042,7 @@
       const blob = new Blob([exportText()], { type: "text/plain;charset=utf-8" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `${state.name.replace(/\.txt$/i, "")}-orden.txt`;
+      link.download = `${state.name.replace(/\.txt$/i, "")}-order.txt`;
       link.click();
       URL.revokeObjectURL(link.href);
     }
@@ -1239,12 +1198,12 @@
       const done = state.placed.length;
       if (bar) bar.style.transform = `scaleX(${total ? done / total : 0})`;
       if (!count || !total) return;
-      count.textContent = state.activeId == null ? "Listo" : `${done + 1} de ${total}`;
+      count.textContent = state.activeId == null ? "Done" : `${done + 1} of ${total}`;
     }
 
     function updateMeta() {
       const total = state.statements.length;
-      ui.meta.textContent = total ? `${state.email} · ${total} enunciados` : "";
+      ui.meta.textContent = total ? `${state.email} · ${total} statements` : "";
       ui.btnUndo.disabled = state.placed.length === 0;
       ui.btnReset.disabled = state.placed.length === 0;
     }
@@ -1269,10 +1228,10 @@
       const hint = document.createElement("p");
       hint.id = "hint";
       hint.className = "hint";
-      hint.textContent = "Arrastra hasta la línea";
+      hint.textContent = "Drag to the line";
       const keys = document.createElement("span");
       keys.id = "hint-keys";
-      keys.textContent = "  ·  ← → y Enter";
+      keys.textContent = "  ·  ← → and Enter";
       hint.appendChild(keys);
       slot.appendChild(card);
       wrap.append(count, slot, hint);
@@ -1290,10 +1249,10 @@
       const count = document.createElement("div");
       count.id = "count";
       count.className = "count";
-      count.textContent = "Listo";
+      count.textContent = "Done";
       const hint = document.createElement("p");
       hint.className = "hint";
-      hint.textContent = "De disagree a agree. Puedes seguir moviendo las tarjetas.";
+      hint.textContent = "From disagree to agree. You can keep moving the cards.";
       const save = document.createElement("p");
       save.id = "save-status";
       save.className = "hint";
@@ -1306,17 +1265,17 @@
       copy.type = "button";
       copy.className = "btn";
       copy.id = "btn-copy";
-      copy.textContent = "Copiar";
+      copy.textContent = "Copy";
       const download = document.createElement("button");
       download.type = "button";
       download.className = "btn ghost";
       download.id = "btn-download";
-      download.textContent = "Descargar";
+      download.textContent = "Download";
       const another = document.createElement("button");
       another.type = "button";
       another.className = "btn ghost";
       another.id = "btn-another";
-      another.textContent = "Otro respondent";
+      another.textContent = "Another respondent";
       actions.append(copy, download, another);
       head.append(titles, actions);
       const results = document.createElement("div");
@@ -1473,7 +1432,7 @@
         ensureVisible(chip);
         glide(flyer, fromRect, chip.getBoundingClientRect(), () => chip.classList.remove("is-hidden"));
       }
-      announce(`Colocado en ${formatScore(score)}.`);
+      announce(`Placed at ${formatScore(score)}.`);
       scheduleSave(true);
     }
 
