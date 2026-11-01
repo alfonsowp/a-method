@@ -629,8 +629,11 @@
     let toastTimer = 0;
     let nudgeId = null;
     let saveTimer = 0;
-    let saveSeq = 0;
+    let retryTimer = 0;
+    let flushRunning = false;
+    let inflight = null;
     let deckRequest = 0;
+    const OUTBOX_KEY = "qp-outbox-v1";
 
     const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
     const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -843,8 +846,117 @@
 
     function cancelSave() {
       clearTimeout(saveTimer);
-      saveSeq += 1;
-      state.saveStatus = "";
+    }
+
+    let memoryOutbox = null;
+
+    function readOutbox() {
+      if (memoryOutbox) return memoryOutbox.map((item) => ({ ...item }));
+      try {
+        const raw = localStorage.getItem(OUTBOX_KEY);
+        const data = raw ? JSON.parse(raw) : [];
+        return Array.isArray(data) ? data : [];
+      } catch {
+        memoryOutbox = [];
+        return [];
+      }
+    }
+
+    function writeOutbox(items) {
+      const copy = items.map((item) => ({ email: item.email, scores: item.scores, updatedAt: item.updatedAt }));
+      if (memoryOutbox) {
+        memoryOutbox = copy;
+        return;
+      }
+      try {
+        localStorage.setItem(OUTBOX_KEY, JSON.stringify(copy));
+      } catch {
+        memoryOutbox = copy;
+      }
+    }
+
+    function refreshSaveStatus() {
+      if (!state.email || !isComplete()) return;
+      const pending = readOutbox().some((item) => item.email === state.email);
+      setSaveStatus(pending ? "Saving…" : "Inputs saved");
+    }
+
+    function enqueueSave(email, scores) {
+      email = String(email || "").trim().toLowerCase();
+      if (!email) return;
+      if (!SCRIPT_URL) {
+        setSaveStatus("The sheet is not connected yet.");
+        return;
+      }
+      const items = readOutbox().filter((item) => item.email !== email);
+      items.push({ email, scores, updatedAt: Date.now() });
+      writeOutbox(items);
+      setSaveStatus("Saving…");
+      flushOutbox();
+    }
+
+    function saveRequestUrl(item) {
+      return SCRIPT_URL + "?" + new URLSearchParams({
+        email: item.email,
+        scores: item.scores,
+      }).toString();
+    }
+
+    function sendOnce(item) {
+      const controller = new AbortController();
+      inflight = controller;
+      const timer = setTimeout(() => controller.abort(), 40000);
+      return fetch(saveRequestUrl(item), {
+        method: "GET",
+        cache: "no-store",
+        signal: controller.signal,
+      }).then((res) => res.json()).then((data) => {
+        if (data && data.ok) return "saved";
+        const reason = data && data.error;
+        if (reason === "email" || reason === "empty" || reason === "statements") return "drop";
+        return "retry";
+      }).catch(() => "retry").finally(() => {
+        clearTimeout(timer);
+        if (inflight === controller) inflight = null;
+      });
+    }
+
+    function scheduleRetry() {
+      clearTimeout(retryTimer);
+      retryTimer = setTimeout(flushOutbox, 2000 + Math.floor(Math.random() * 2000));
+    }
+
+    function flushOutbox() {
+      if (flushRunning) return;
+      const items = readOutbox();
+      if (!items.length) {
+        refreshSaveStatus();
+        return;
+      }
+      flushRunning = true;
+      const item = items[0];
+      sendOnce(item).then((result) => {
+        const latest = readOutbox();
+        const still = latest.find((entry) => entry.email === item.email);
+        if (result === "drop" || (result === "saved" && still && still.updatedAt === item.updatedAt)) {
+          writeOutbox(latest.filter((entry) => entry.email !== item.email));
+        }
+        flushRunning = false;
+        refreshSaveStatus();
+        if (result === "retry") scheduleRetry();
+        else if (readOutbox().length) flushOutbox();
+      });
+    }
+
+    function deliverOutboxNow() {
+      const items = readOutbox();
+      if (!items.length) return;
+      if (inflight) {
+        try { inflight.abort(); } catch { /* already finished */ }
+      }
+      items.forEach((item) => {
+        fetch(saveRequestUrl(item), { method: "GET", keepalive: true, cache: "no-store" }).catch(() => {});
+      });
     }
 
     function scheduleSave(immediate) {
@@ -852,33 +964,11 @@
       clearTimeout(saveTimer);
       const email = state.email;
       const scores = scoresInOrder().join(",");
-      setSaveStatus(SCRIPT_URL ? "Saving…" : "The sheet is not connected yet.");
       if (immediate) {
-        submitScores(email, scores);
+        enqueueSave(email, scores);
         return;
       }
-      saveTimer = setTimeout(() => submitScores(email, scores), 450);
-    }
-
-    function submitScores(email, scores) {
-      if (!email) return;
-      if (!SCRIPT_URL) {
-        setSaveStatus("The sheet is not connected yet.");
-        return;
-      }
-      const seq = ++saveSeq;
-      const callback = "espectroSave_" + Math.random().toString(36).slice(2);
-      const src = SCRIPT_URL + (SCRIPT_URL.includes("?") ? "&" : "?")
-        + new URLSearchParams({ callback, email, scores }).toString();
-      setSaveStatus("Saving…");
-      callJsonp(src, callback, 20000).then((data) => {
-        if (seq !== saveSeq) return;
-        if (data && data.ok) setSaveStatus("Inputs saved");
-        else setSaveStatus("Could not save.");
-      }).catch(() => {
-        if (seq !== saveSeq) return;
-        setSaveStatus("Could not save.");
-      });
+      saveTimer = setTimeout(() => enqueueSave(email, scores), 450);
     }
 
     function showGate(note, options = {}) {
@@ -909,8 +999,7 @@
       state.drag = null;
       document.body.classList.remove("is-dragging");
       clearTimeout(saveTimer);
-      if (isComplete() && state.email) submitScores(state.email, scoresInOrder().join(","));
-      else cancelSave();
+      if (isComplete() && state.email) enqueueSave(state.email, scoresInOrder().join(","));
       state.email = "";
       state.name = "";
       state.statements = [];
@@ -1814,6 +1903,8 @@
       document.addEventListener("pointercancel", onPointerCancel);
       document.addEventListener("keydown", onKeyDown);
       document.addEventListener("keyup", onKeyUp);
+      window.addEventListener("online", flushOutbox);
+      window.addEventListener("pagehide", deliverOutboxNow);
 
       new ResizeObserver(() => layout()).observe(ui.rail);
       document.fonts?.ready.then(() => layout());
@@ -1844,6 +1935,7 @@
       try { localStorage.removeItem("espectro-v1"); } catch { /* ignore */ }
       bind();
       loadDeck();
+      flushOutbox();
     }
 
     init();

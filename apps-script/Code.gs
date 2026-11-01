@@ -35,25 +35,34 @@ function handle_(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function statementCount_(ss) {
+  var statements = ss.getSheetByName(STATEMENTS_SHEET);
+  if (!statements) throw new Error("statements");
+  var column = statements.getRange("A:A").getValues();
+  var count = 0;
+  for (var i = 0; i < column.length; i++) {
+    if (String(column[i][0] || "").trim()) count++;
+    else if (count) break;
+  }
+  if (!count) throw new Error("empty");
+  return count;
+}
+
 function save_(params) {
   var email = String(params.email || "").trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("email");
   var scores = String(params.scores || "").split(",");
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var count = statementCount_(ss);
+  var headers = ["email respondent"];
+  for (var n = 1; n <= count; n++) headers.push("S" + n);
   var lock = LockService.getScriptLock();
-  lock.waitLock(20000);
   try {
-    var ss = SpreadsheetApp.openById(SHEET_ID);
-    var statements = ss.getSheetByName(STATEMENTS_SHEET);
-    if (!statements) throw new Error("statements");
-    var column = statements.getRange("A:A").getValues();
-    var count = 0;
-    for (var i = 0; i < column.length; i++) {
-      if (String(column[i][0] || "").trim()) count++;
-      else if (count) break;
-    }
-    if (!count) throw new Error("empty");
-    var headers = ["email respondent"];
-    for (var n = 1; n <= count; n++) headers.push("S" + n);
+    lock.waitLock(15000);
+  } catch (err) {
+    throw new Error("busy");
+  }
+  try {
     var out = ss.getSheetByName(OUTPUT_SHEET);
     if (!out) out = ss.insertSheet(OUTPUT_SHEET);
     var width = headers.length;
@@ -82,6 +91,7 @@ function save_(params) {
     }
     if (found) out.getRange(found, 1, 1, width).setValues([row]);
     else out.getRange(last + 1, 1, 1, width).setValues([row]);
+    SpreadsheetApp.flush();
     return { ok: true, email: email, updated: found > 0 };
   } finally {
     lock.releaseLock();
